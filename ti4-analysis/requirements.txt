@@ -1,0 +1,31 @@
+# Core scientific computing
+numpy>=1.24
+scipy>=1.11
+pandas>=2.0
+
+# Visualization
+matplotlib>=3.7
+seaborn>=0.12
+plotly>=5.17
+
+# Graph theory and network analysis
+networkx>=3.1
+
+# Spatial statistics (for Moran's I, Getis-Ord Gi*, etc.)
+pysal>=23.7
+libpysal>=4.9
+esda>=2.5
+geopandas>=0.14
+
+# Interactive analysis
+jupyter>=1.0
+ipykernel>=6.25
+ipywidgets>=8.1
+
+# Development dependencies (optional)
+pytest>=7.4
+pytest-cov>=4.1
+hypothesis>=6.88
+black>=23.9
+ruff>=0.0.290
+mypy>=1.5

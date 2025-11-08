@@ -8,6 +8,8 @@ import adjacencyData from "../data/adjacencyData.json";
 import HelpModal from "./HelpModal";
 import SetPlayerNameModal from "./SetPlayerNameModal";
 import SetRacesModal from "./SetRacesModal";
+import BalanceOptions from "./BalanceOptions";
+import { balanceMap } from "../balance/balance-engine";
 
 const expansionCheck = (includedExpansions) => (
     (id) => (!tileData.pok.includes(id) || includedExpansions[EXPANSIONS.POK]) && (!tileData.uncharted.includes(id) || includedExpansions[EXPANSIONS.UnS]) && (!tileData.sun.includes(id) || includedExpansions[EXPANSIONS.AS]) && (!tileData.asyncLanes.includes(id) || includedExpansions[EXPANSIONS.Async])
@@ -111,6 +113,7 @@ class MapOptions extends React.Component {
 
         this.generateBoard = this.generateBoard.bind(this);
         this.getNewTileSet = this.getNewTileSet.bind(this);
+        this.handleBalanceMap = this.handleBalanceMap.bind(this);
 
         this.toggleFanContentHelp = this.toggleFanContentHelp.bind(this);
         this.toggleUnchartedSpaceHelp = this.toggleUnchartedSpaceHelp.bind(this);
@@ -548,6 +551,41 @@ class MapOptions extends React.Component {
             this.props.updateTiles(this.getNewTileSet(), this.encodeSettings(), true);
         });
 
+    }
+
+    /**
+     * Balance the current map using the ti4-map-lab algorithm
+     * @param {Object} evaluator - The evaluator configuration
+     * @param {number} iterations - Number of balance iterations
+     * @param {Function} callback - Callback with balance gap result
+     */
+    handleBalanceMap(evaluator, iterations, callback) {
+        try {
+            // Get current board configuration
+            const boardConfig = boardData.styles[this.state.currentNumberOfPlayers.toString()][this.state.currentBoardStyle];
+
+            // Balance the map
+            const result = balanceMap(
+                this.props.tiles,
+                tileData,
+                boardConfig,
+                evaluator,
+                iterations
+            );
+
+            // Update the tiles with balanced result
+            this.props.updateTiles(result.tiles, this.encodeSettings(), false);
+
+            // Call callback with balance gap
+            if (callback) {
+                callback(result.balanceGap);
+            }
+        } catch (error) {
+            console.error('Error balancing map:', error);
+            if (callback) {
+                callback(null);
+            }
+        }
     }
 
     /**
@@ -1855,6 +1893,14 @@ class MapOptions extends React.Component {
                     />
 
                     <Button type="submit" className="btn btn-primary">Generate</Button>
+
+                    <hr className="my-4" />
+
+                    <BalanceOptions
+                        mapGenerated={this.state.generated}
+                        onBalanceClick={this.handleBalanceMap}
+                    />
+
                 </Form>
             </div>
         );
